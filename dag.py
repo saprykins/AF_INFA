@@ -9,14 +9,8 @@ from airflow.utils.dates import days_ago
 import requests
 import json
 
-'''
-def my_func():
-    print('welcome')
-    return 'welcome'
-'''
 
-
-def run_a_task():
+def open_session(ti):
     # LOGIN TO INFA
 
     # is used to get icSessionId
@@ -36,13 +30,23 @@ def run_a_task():
     # informatica session id
     session_id = json_obj["icSessionId"]
     print(session_id)
+    
+    # session_id below is INFA session id
+    ti.xcom_push(key='session_id', value=session_id)
+    
     # return session_id
 
 
-
+def run_a_task(ti):
     # START A TASK
 
     url_job = 'https://emw1.dm-em.informaticacloud.com/saas/api/v2/job'
+    
+    # get session_id from another function
+    
+    # accuracies = ti.xcom_pull(key='model_accuracy', session_id=['training_model_A', 'training_model_B', 'training_model_C'])
+    session_id = ti.xcom_pull(key='session_id', task_ids='open_session')
+        
     Headers = {"icSessionId": session_id}
 
     myobj = {
@@ -56,6 +60,7 @@ def run_a_task():
 
 
 
+def close_session():
     # CLOSE SESSION
 
     url_logout = "https://dm-em.informaticacloud.com/ma/api/v2/user/logout"
@@ -65,8 +70,8 @@ def run_a_task():
     }
     z = requests.post(url_logout, json = myobj)
     print(z)
-
-    return "done"
+    print('dag is split in functions')
+    return "session is closed"
 
 
 
@@ -100,7 +105,33 @@ dag_python = DAG(
 # python_task = PythonOperator(task_id='python_task', python_callable=my_func, dag=dag_python)
 
 # log_in = PythonOperator(task_id='log_in', python_callable=log_in, dag=dag_python)
-run_task = PythonOperator(task_id='log_in', python_callable=run_a_task, dag=dag_python)
+
+# let's try this
+open_session = PythonOperator(
+    task_id='open_session', 
+    python_callable=open_session, 
+    dag=dag_python
+    )
+
+run_a_task = PythonOperator(
+    task_id='run_a_task', 
+    python_callable=run_a_task,
+    dag=dag_python
+    )
+
+close_session = PythonOperator(
+    task_id='log_out', 
+    python_callable=close_session, 
+    dag=dag_python
+    )
 
 # log_in >> run_task >> log_out
-run_task
+# run_task
+
+# let's try this
+# open_session = open_session()
+open_session >> run_a_task >> close_session
+
+# two links to pass params
+# https://airflow.apache.org/docs/apache-airflow/stable/howto/operator/python.html
+# https://stackoverflow.com/questions/54894418/how-to-pass-parameter-to-pythonoperator-in-airflow
