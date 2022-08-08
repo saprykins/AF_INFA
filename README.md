@@ -4,7 +4,7 @@ Several improvements required:
 
 1/ password usage
 
-The password is [encrypted] in transit (https://stackoverflow.com/questions/70052068/python-requests-library-how-to-ensure-https-requests)
+The password is [encrypted](https://stackoverflow.com/questions/70052068/python-requests-library-how-to-ensure-https-requests) in transit thanks to HTTPS by default
 
 source links:  
 
