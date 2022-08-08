@@ -4,6 +4,8 @@ Several improvements required:
 
 1/ password usage
 
+The password is encrypted in transit [link](https://stackoverflow.com/questions/70052068/python-requests-library-how-to-ensure-https-requests)
+
 source links:  
 
 1/ AF doc [link](https://airflow.apache.org/docs/apache-airflow/stable/concepts/xcoms.html)  
