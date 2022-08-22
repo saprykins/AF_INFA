@@ -15,3 +15,5 @@ source links:
 2.5/ code for above video [link](https://www.notion.so/Solution-fdea635b3c894d0c856148ba2370fc47)  
 
 3/ XCom [explanation](https://marclamberti.com/blog/airflow-xcom/)  
+
+INFA API [types](https://docs.informatica.com/integration-cloud/cloud-platform/current-version/rest-api-reference/platform-rest-api-version-2-resources/task.html)
