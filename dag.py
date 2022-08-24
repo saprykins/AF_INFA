@@ -13,13 +13,19 @@ import json
 def open_session(ti):
     # LOGIN TO INFA
 
+    # Clients proposal start
+    from airflow.hooks.base_hook import BaseHook
+    connection = BaseHook.get_connection("informatica_service_account")
+    password = connection.password 
+    # the END
+
     # is used to get icSessionId
     url = 'https://dm-em.informaticacloud.com/ma/api/v2/user/login'
 
     myobj = {
         "@type":"login",
         "username":"ssaprykin",
-        "password":"***"
+        "password":password
     }
 
     # x is response from INFA
