@@ -17,3 +17,5 @@ source links:
 3/ XCom [explanation](https://marclamberti.com/blog/airflow-xcom/)  
 
 INFA API [types](https://docs.informatica.com/integration-cloud/cloud-platform/current-version/rest-api-reference/platform-rest-api-version-2-resources/task.html)
+
+Establish connection using password in [AF](https://williamqliu.github.io/2018/02/20/apache-airflow.html)
