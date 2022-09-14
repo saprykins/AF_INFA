@@ -1,0 +1,88 @@
+import airflow
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+from datetime import timedelta
+
+
+import requests
+import json
+
+
+def open_session(ti):
+
+    url = 'https://dm-em.informaticacloud.com/ma/api/v2/user/login'
+
+    myobj = {
+        "@type":"login",
+        "username":"***",
+        "password":"***"
+    }
+
+    x = requests.post(url, json = myobj)
+    json_obj = x.json()
+
+    session_id = json_obj["icSessionId"]
+    print(session_id)
+    
+    ti.xcom_push(key='session_id', value=session_id)
+
+
+def run_a_task(ti):
+
+    url_job = 'https://emw1.dm-em.informaticacloud.com/active-bpel/rt/Taskflow_salesperstore_-_Copy_1'
+    
+    session_id = ti.xcom_pull(key='session_id', task_ids='open_session')
+        
+    Headers = {"IDS-SESSION-ID": session_id}
+
+    y = requests.post(url_job, headers=Headers)
+    print(y)
+
+
+def close_session():
+    
+    url_logout = "https://dm-em.informaticacloud.com/ma/api/v2/user/logout"
+
+    myobj = {
+        "@type":"logout"
+    }
+    z = requests.post(url_logout, json = myobj)
+    return "session is closed"
+
+
+default_args = {
+    'owner': 'airflow',
+    'retry_delay': timedelta(minutes=5),
+    }
+
+
+dag_python = DAG(
+	dag_id = "run_taskflow",
+	default_args=default_args,
+	schedule_interval='@once',	
+	dagrun_timeout=timedelta(minutes=60),
+	description='use case of python operator in airflow',
+	start_date = airflow.utils.dates.days_ago(1))
+
+
+open_session = PythonOperator(
+    task_id='open_session', 
+    python_callable=open_session, 
+    dag=dag_python
+    )
+
+run_a_task = PythonOperator(
+    task_id='run_a_task', 
+    python_callable=run_a_task,
+    dag=dag_python
+    )
+
+close_session = PythonOperator(
+    task_id='log_out', 
+    python_callable=close_session, 
+    dag=dag_python
+    )
+
+open_session >> run_a_task >> close_session
+
+# The run taskflow returns a RunId. You can use this RunId to get the status of the taskflow run.
